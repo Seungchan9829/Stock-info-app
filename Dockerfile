@@ -14,4 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 4. 앱 소스 복사
 COPY . .
 
-CMD ["python", "app.py"]
+CMD gunicorn app:app \
+    --bind 0.0.0.0:${PORT} \
+    --workers ${WEB_CONCURRENCY} \
+    --timeout ${GUNICORN_TIMEOUT}
