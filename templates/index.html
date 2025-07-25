@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flask Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            border-collapse: collapse;
+            width: 60%;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .negative {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>📉 20일 이격도 기준 과대 낙폭 종목</h1>
+    <table>
+        <tr>
+            <th>📈 종목</th>
+            <th>20일 기준 이격도 (%)</th>
+            <th>현재 이격도 (%)</th>
+        </tr>
+        {% for stock_info in low_di20 %}
+        <tr>
+            <td>{{ stock_info[0] }}</td>
+            <td class="negative">{{ stock_info[1] }}</td>
+            <td class="negative">{{ stock_info[2] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
