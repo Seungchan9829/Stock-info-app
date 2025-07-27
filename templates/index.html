@@ -28,19 +28,39 @@
 </head>
 <body>
     <h1>📉 20일 이격도 기준 과대 낙폭 종목</h1>
+
+    <!-- 1) 날짜 선택 폼 -->
+    <form method="get" style="margin-bottom: 1em;">
+        <label for="date">날짜:</label>
+        <input
+            type="date"
+            id="date"
+            name="date"
+            value="{{ selected_date }}"
+        >
+        <button type="submit">조회</button>
+    </form>
+
+    <!-- 2) 결과 테이블 -->
+    {% if low_di20 %}
     <table>
         <tr>
             <th>📈 종목</th>
             <th>20일 기준 이격도 (%)</th>
             <th>현재 이격도 (%)</th>
         </tr>
-        {% for stock_info in low_di20 %}
+        {% for ticker, base_disp, curr_disp in low_di20 %}
         <tr>
-            <td>{{ stock_info[0] }}</td>
-            <td class="negative">{{ stock_info[1] }}</td>
-            <td class="negative">{{ stock_info[2] }}</td>
+            <td>{{ ticker }}</td>
+            <td class="negative">{{ base_disp }}</td>
+            <td class="negative">{{ curr_disp }}</td>
         </tr>
         {% endfor %}
     </table>
+    {% else %}
+    <p>🗓️ {{ selected_date }} 데이터가 없습니다.</p>
+    {% endif %}
 </body>
 </html>
+
+
