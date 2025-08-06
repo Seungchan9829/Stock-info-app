@@ -1,0 +1,6 @@
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    container_name: worker_container

@@ -1,0 +1,200 @@
+{% extends 'base2.html' %}
+
+{% block title %}홈 | My App{% endblock %}
+
+{% block content %}
+  <style>
+    /* select 박스 예쁜 스타일 */
+    .period-select-box {
+      padding: 8px 24px 8px 12px;
+      border: 1px solid #999;
+      border-radius: 8px;
+      background: #f0f6ff;
+      font-size: 1.08em;
+      margin-bottom: 1.2em;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border 0.2s;
+      box-shadow: 0 2px 8px #0001;
+      font-family: inherit;
+    }
+    .period-select-box:focus {
+      border: 2px solid #4583f0;
+      background: #e9f0fa;
+    }
+    .select-wrapper {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1em;
+    }
+    .select-label {
+      margin-right: 0.8em;
+      font-weight: bold;
+      font-size: 1.1em;
+      color: #3e4b5b;
+    }
+  </style>
+
+  <div class="select-wrapper">
+    <span class="select-label">기간 선택:</span>
+    <form method="get" action="{{ url_for('credit_status') }}">
+      <select name="period" class="period-select-box" onchange="this.form.submit()">
+        <option value="1y" {% if period == '1y' %}selected{% endif %}>1년</option>
+        <option value="3y" {% if period == '3y' %}selected{% endif %}>3년</option>
+        <option value="5y" {% if period == '5y' %}selected{% endif %}>5년</option>
+      </select>
+    </form>
+  </div>
+
+  <h2 style="margin-top:2em;">KOSPI 지수 추이</h2>
+  <canvas id="kospiChart" width="800" height="300" style="margin-bottom:2em"></canvas>
+
+  <h2>신용 잔고 추이</h2>
+  <canvas id="creditChart" width="800" height="400"></canvas>
+
+  <h2>DI20 추이</h2>
+    <canvas id="di20Chart" width="800" height="250"></canvas>
+    <h2>평균 분위값(0.07) : {{p7}}</h2>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    // 백엔드에서 넘겨받은 데이터
+    const creditData = {{ credit_data | tojson | safe }};
+    const kospiData = {{ kospi_index | tojson | safe }};
+    const creditDi20Data = {{credit_di20_data | tojson | safe}}
+    // 신용 잔고 차트 데이터
+    const creditLabels = creditData.map(row => row.date);
+    const loanTotal = creditData.map(row => row.loan_total);
+    const loanKospi = creditData.map(row => row.loan_kospi);
+    const loanKosdaq = creditData.map(row => row.loan_kosdaq);
+
+    // KOSPI 차트 데이터
+    const kospiLabels = kospiData.map(row => row.date);
+    const kospiValues = kospiData.map(row => parseFloat(row.kospi_index));
+
+    // di20 차트 데이터
+    const di20Labels = creditDi20Data.map(row => row.date)
+    const di20Values = creditDi20Data.map(row => row.di20)
+    // DI20 차트 그리기
+    const di20Ctx = document.getElementById('di20Chart').getContext('2d');
+    new Chart(di20Ctx, {
+    type: 'line',
+    data: {
+        labels: di20Labels,
+        datasets: [{
+        label: 'DI20 (%)',
+        data: di20Values,
+        borderColor: '#ff5b5b',
+        backgroundColor: 'rgba(255,91,91,0.07)',
+        pointRadius: 1,
+        tension: 0.18
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+        title: {
+            display: true,
+            text: 'DI20 (%) 추이'
+        },
+        legend: { display: false }
+        },
+        scales: {
+        y: {
+            ticks: {
+            callback: function(value) {
+                return value + '%';
+            }
+            }
+        }
+        }
+    }
+    });
+
+    // KOSPI 지수 차트
+    const kospiCtx = document.getElementById('kospiChart').getContext('2d');
+    new Chart(kospiCtx, {
+      type: 'line',
+      data: {
+        labels: kospiLabels,
+        datasets: [{
+          label: 'KOSPI 지수',
+          data: kospiValues,
+          borderColor: '#8057e7',
+          backgroundColor: 'rgba(128,87,231,0.07)',
+          pointRadius: 2,
+          tension: 0.25
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'KOSPI 지수'
+          },
+          legend: { display: false }
+        }
+      }
+    });
+
+    // 신용잔고 차트
+    const creditCtx = document.getElementById('creditChart').getContext('2d');
+    new Chart(creditCtx, {
+      type: 'line',
+      data: {
+        labels: creditLabels,
+        datasets: [
+          {
+            label: '전체',
+            data: loanTotal,
+            borderColor: '#1a91ec',
+            fill: false,
+            pointRadius: 1,
+            tension: 0.2
+          },
+          {
+            label: '코스피',
+            data: loanKospi,
+            borderColor: '#2ed47a',
+            fill: false,
+            pointRadius: 1,
+            tension: 0.2
+          },
+          {
+            label: '코스닥',
+            data: loanKosdaq,
+            borderColor: '#ffbb44',
+            fill: false,
+            pointRadius: 1,
+            tension: 0.2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: '신용 잔고 추이'
+          }
+        },
+        scales: {
+          y: {
+            ticks: {
+              callback: function (value) {
+                return (value / 1e12).toFixed(2) + ' 조';  // 조 단위로
+              }
+            }
+          }
+        }
+      }
+    });
+  </script>
+{% endblock %}

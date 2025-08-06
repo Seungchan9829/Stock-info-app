@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}My App{% endblock %}</title>
+  <style>
+    /* Topbar 고정 */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 3em;
+      background: #333; color: #fff;
+      display: flex; align-items: center;
+      padding: 0 1em;
+      z-index: 1000;
+    }
+    .topbar ul {
+      display: flex; list-style: none;
+      margin: 0; padding: 0;
+    }
+    .topbar li { margin-right: 1em; }
+    .topbar a {
+      color: #fff; text-decoration: none;
+      font-weight: bold;
+    }
+    /* 날짜 선택 폼 우측 정렬 */
+    .topbar form { margin-left: auto; }
+
+    /* 본문 여백 확보 */
+    .content {
+      margin-top: 3em;
+      padding: 1em;
+    }
+
+    /* 테이블 기본 스타일 */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 8px;
+      text-align: center;
+    }
+    th { background: #f2f2f2; }
+    .negative { color: red; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <ul>
+      {% for name, endpoint in menu_items %}
+        <li><a href="{{ url_for(endpoint) }}">{{ name }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="content">
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

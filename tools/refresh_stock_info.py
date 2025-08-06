@@ -42,4 +42,6 @@ def refresh_low_di20_stock_list():
 
 
 
+refresh_low_di20_stock_list()
+
 
