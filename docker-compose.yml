@@ -2,5 +2,5 @@ services:
   worker:
     build:
       context: .
-      dockerfile: worker/Dockerfile
+      dockerfile: Dockerfile
     container_name: worker_container
