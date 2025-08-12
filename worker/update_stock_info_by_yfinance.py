@@ -81,7 +81,7 @@ def stock_info_update_by_yfinance_run(tickers : list = nasdaq_100):
         
 
 
-def stock_price_update_by_yfinance_run(tickers : list = nasdaq_100, period : str = "5d"):
+def stock_price_update_by_yfinance_run(tickers : list = nasdaq_100, period : str = "10d"):
     # 1. 업데이트할 티커(종목코드) 리스트 설정
     stocks_to_update = tickers
     

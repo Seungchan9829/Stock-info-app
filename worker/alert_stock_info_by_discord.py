@@ -26,7 +26,7 @@ def run_discord_bot(token: str, channel_id: int):
         if message.content == 'ping':
             await message.channel.send('pong!')
 
-    @tasks.loop(minutes = 5)
+    @tasks.loop(minutes = 30)
     async def check_low_di20_stock():
         channel = client.get_channel(channel_id)
         low_di20_stocks = get_today_low_di20_stocks()
