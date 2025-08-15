@@ -9,7 +9,7 @@ load_dotenv()
 
 
 
-def run_discord_bot(token: str, channel_id: int):
+async def run_discord_bot(token: str, channel_id: int):
     intents = discord.Intents.default()
     intents.message_content = True
     client = discord.Client(intents=intents)
@@ -36,4 +36,4 @@ def run_discord_bot(token: str, channel_id: int):
             msg = format_low_di20_stocks(low_di20_stocks)
             await channel.send(f"20일선 이격도 과대낙폭 종목 리스트:\n```\n{msg}\n```")
 
-    client.run(token)
+    await client.start(token)

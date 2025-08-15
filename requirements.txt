@@ -22,3 +22,6 @@ yarl==1.20.1
 yfinance
 apscheduler
 pytz
+requests
+aiohttp
+websockets
