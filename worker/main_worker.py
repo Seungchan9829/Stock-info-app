@@ -6,12 +6,13 @@ from datetime import datetime
 from dotenv import load_dotenv
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # 변경 포인트
 from coin.main_coin_alert import main_coin_alert
+from nasdaq_100 import nasdaq_100, SNP_500
 from worker.alert_stock_info_by_discord import run_discord_bot
 from worker.update_stock_info_by_yfinance import (
-    stock_info_update_by_yfinance_run,
-    stock_price_update_by_yfinance_run
+    stock_price_update_by_yfinance_run,
+    stock_info_update_run
 )
-from kr_index import KOSPI_50
+from kr_index import KOSPI_50, KOSDAQ_150
 
 # 로깅 설정
 logging.basicConfig(
@@ -35,8 +36,11 @@ def job():
     now = datetime.now(NY_TZ)
     logger.info(f"[JOB] 실행: {now}")
     try:
-        logger.info("stock_price_update_by_yfinance_run() 호출")
-        stock_price_update_by_yfinance_run()
+        logger.info("나스닥 가격 업데이트 JOB 실행")
+        stock_price_update_by_yfinance_run(nasdaq_100, "10d")
+        logger.info("S&P500 가격 정보 업데이트 JOB 실행")
+        stock_price_update_by_yfinance_run(SNP_500, "10d")
+
     except Exception:
         logger.error("[JOB] 예외 발생:\n%s", traceback.format_exc())
 
@@ -44,7 +48,10 @@ def korea_stock_update_job():
     now = datetime.now(KR_TZ)
     logger.info(f"한국 주식 업데이트 [JOB] 실행 : {now}")
     try:
+        logger.info("코스피 50 가격 업데이트 JOB 실행")
         stock_price_update_by_yfinance_run(KOSPI_50, "10d")
+        logger.info("코스닥 150 가격 업데이트 JOB 실행")
+        stock_price_update_by_yfinance_run(KOSDAQ_150, "10d")
     except Exception:
         logger.error("한국 주식 업데이트 [JOB] 오류 발생")
 
@@ -78,16 +85,28 @@ async def main():
     # 초기 실행(동기 함수면 스레드 풀로 넘기기)
     loop = asyncio.get_running_loop()
 
-    logger.info("stock_info_update_by_yfinance_run() 호출 직전")
-    await loop.run_in_executor(None, stock_info_update_by_yfinance_run, KOSPI_50)
+    logger.info("코스피 종목 정보 초기 업데이트")
+    await loop.run_in_executor(None, stock_info_update_run, KOSPI_50)
 
-    logger.info("stock_info_update_by_yfinance_run() 호출 직전")
-    await loop.run_in_executor(None, stock_info_update_by_yfinance_run)
+    logger.info("나스닥 종목 정보 초기 업데이트")
+    await loop.run_in_executor(None, stock_info_update_run, nasdaq_100)
 
-    logger.info("stock_price_update_by_yfinance_run() 호출 직전")
-    await loop.run_in_executor(None, stock_price_update_by_yfinance_run)
+    logger.info("코스닥 종목 정보 초기 업데이트")
+    await loop.run_in_executor(None, stock_info_update_run, KOSDAQ_150)
 
+    logger.info("S&P500 종목 정보 초기 업데이트")
+    await loop.run_in_executor(None, stock_info_update_run, SNP_500)
+
+
+    # 가격 정보 초기 업데이트
+    logger.info("나스닥 가격 정보 초기 업데이트")
+    await loop.run_in_executor(None, stock_price_update_by_yfinance_run, nasdaq_100, "10d")
+    logger.info("코스피 가격 정보 초기 업데이트")
     await loop.run_in_executor(None, stock_price_update_by_yfinance_run, KOSPI_50, "2y")
+    logger.info("코스닥 가격 정보 초기 업데이트")
+    await loop.run_in_executor(None, stock_price_update_by_yfinance_run, KOSDAQ_150, "2y")
+    logger.info("S&P500 가격 정보 초기 업데이트")
+    await loop.run_in_executor(None, stock_price_update_by_yfinance_run, SNP_500, "2y")
 
     logger.info("디스코드 봇 & 코인 알람 동시 실행")
     await asyncio.gather(
